@@ -1,0 +1,76 @@
+name: CIAL Cause List Check
+
+on:
+  schedule:
+    # 03:30 UTC = 09:00 AM IST daily. Adjust to taste.
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Cause list date to check (YYYY-MM-DD). Leave blank for today.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  check-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Run cause list check
+        run: |
+          python scripts/check.py --date "${{ github.event.inputs.date }}"
+
+      - name: Build static site
+        run: python scripts/build_site.py
+
+      - name: Commit updated data back to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Update cause list data [skip ci]"
+          git push
+
+      - name: Upload debug snapshots (for troubleshooting selectors)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-${{ github.run_id }}
+          path: debug/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
