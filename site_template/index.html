@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CIAL Cause List Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2A4A; --paper:#EFE9DD; --paper-2:#E5DECC;
+    --seal:#A13D3D; --gold:#B08D4F; --charcoal:#2B2B28; --line:#D2C9AE;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper);
+    background-image:
+      radial-gradient(ellipse at top left, rgba(27,42,74,0.04), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(161,61,61,0.04), transparent 60%);
+    color:var(--charcoal); font-family:'Inter', sans-serif; min-height:100vh;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:56px 24px 80px;}
+  header{
+    border-bottom:2px solid var(--ink); padding-bottom:20px; margin-bottom:36px;
+    display:flex; justify-content:space-between; align-items:flex-end; gap:16px;
+  }
+  .eyebrow{font-family:'IBM Plex Mono', monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);opacity:.7;}
+  h1{font-family:'Source Serif 4', serif;font-weight:700;font-size:34px;line-height:1.1;margin:6px 0 0;color:var(--ink);}
+  .docket-no{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--ink);opacity:.65;text-align:right;white-space:nowrap;}
+
+  .card{background:#fbf9f4;border:1px solid var(--line);border-radius:2px;padding:28px;margin-bottom:24px;position:relative;}
+  .card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;background:var(--gold);opacity:.55;}
+  .card h2{font-family:'Source Serif 4', serif;font-size:17px;margin:0 0 16px;color:var(--ink);}
+
+  .status-line{font-family:'IBM Plex Mono', monospace;font-size:13px;display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:#999;flex:none;}
+  .dot.up{background:#3f7a4e;} .dot.down{background:var(--seal);}
+
+  .stamp-zone{display:flex;justify-content:center;padding:20px 0 4px;}
+  .stamp{
+    width:190px;height:190px;border-radius:50%;border:4px solid var(--seal);
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    font-family:'Source Serif 4', serif;font-weight:700;color:var(--seal);
+    text-transform:uppercase;letter-spacing:.06em;font-size:19px;line-height:1.25;
+    opacity:.9;transform:rotate(-8deg);position:relative;
+  }
+  .stamp::after{content:"";position:absolute;inset:8px;border:1px solid var(--seal);border-radius:50%;}
+  .stamp.clear{border-color:#3f7a4e;color:#3f7a4e;}
+  .stamp.clear::after{border-color:#3f7a4e;}
+
+  .result-text{font-family:'IBM Plex Mono', monospace;font-size:13.5px;background:var(--paper-2);border:1px solid var(--line);border-radius:2px;padding:14px 16px;margin-top:6px;white-space:pre-wrap;}
+  .meta-line{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--charcoal);opacity:.65;margin-top:10px;}
+  .download-btn{display:inline-block;margin-top:14px;background:var(--seal);color:#fbf9f4;padding:11px 20px;border-radius:2px;text-decoration:none;font-weight:600;font-size:14px;}
+  .download-btn:hover{background:#8c3434;}
+
+  table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono', monospace;font-size:13px;}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.6;}
+  tr.hit td{color:var(--seal);font-weight:500;}
+  td a{color:var(--ink);}
+
+  .howto{font-size:13px;line-height:1.6;color:var(--charcoal);opacity:.85;}
+  .howto code{background:var(--paper-2);padding:1px 5px;border-radius:2px;font-family:'IBM Plex Mono', monospace;font-size:12px;}
+
+  footer{text-align:center;font-family:'IBM Plex Mono', monospace;font-size:11px;color:var(--ink);opacity:.45;margin-top:50px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">High Court of Kerala &middot; Cause List Watch</div>
+      <h1>CIAL Case Monitor</h1>
+    </div>
+    <div class="docket-no" id="docketNo">—</div>
+  </header>
+
+  <div class="card">
+    <h2>Latest run</h2>
+    <div class="status-line"><span class="dot" id="siteDot"></span><span id="siteStatusText">Loading…</span></div>
+    <div class="meta-line" id="metaLine"></div>
+
+    <div class="stamp-zone"><div class="stamp" id="stamp">—</div></div>
+
+    <div class="result-text" id="resultText">Loading latest result…</div>
+    <div id="downloadArea"></div>
+  </div>
+
+  <div class="card">
+    <h2>Run history</h2>
+    <table>
+      <thead><tr><th>Date checked</th><th>Result</th><th>PDF</th></tr></thead>
+      <tbody id="historyBody"><tr><td colspan="3">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Run a check for a specific date</h2>
+    <p class="howto">
+      This page updates automatically on a daily schedule. To check a
+      specific date on demand: go to this repo's <strong>Actions</strong> tab →
+      <strong>CIAL Cause List Check</strong> → <strong>Run workflow</strong>,
+      enter a date as <code>YYYY-MM-DD</code>, and run it. This page rebuilds
+      itself within a couple of minutes of the workflow finishing.
+    </p>
+  </div>
+
+  <footer>Runs a real browser check against the live Kerala HC portal · results are not legal advice</footer>
+</div>
+
+<script>
+function fmtDate(iso){
+  if(!iso) return '—';
+  try{
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+  }catch(e){ return iso; }
+}
+
+async function load(){
+  try{
+    const [latestResp, historyResp] = await Promise.all([
+      fetch('latest.json', {cache:'no-store'}),
+      fetch('history.json', {cache:'no-store'})
+    ]);
+    const latest = await latestResp.json();
+    const history = await historyResp.json();
+    renderLatest(latest);
+    renderHistory(history);
+  }catch(err){
+    document.getElementById('resultText').textContent = 'Could not load results: ' + err.message;
+  }
+}
+
+function renderLatest(data){
+  document.getElementById('docketNo').textContent = data.run_id ? ('RUN ' + data.run_id.slice(0,8).toUpperCase()) : '—';
+
+  const up = data.site_status && data.site_status.reachable;
+  const dot = document.getElementById('siteDot');
+  dot.className = 'dot ' + (up ? 'up' : 'down');
+  document.getElementById('siteStatusText').textContent = up
+    ? 'highcourt.kerala.gov.in reachable (HTTP ' + data.site_status.status_code + ')'
+    : 'highcourt.kerala.gov.in NOT reachable at last check';
+
+  document.getElementById('metaLine').textContent =
+    'Checked for ' + fmtDate(data.date) + ' · run at ' + (data.checked_at || '—') + ' UTC';
+
+  const stamp = document.getElementById('stamp');
+  stamp.classList.remove('clear');
+  if(data.hit){
+    stamp.textContent = 'Match Found';
+  } else {
+    stamp.textContent = 'No Cases';
+    stamp.classList.add('clear');
+  }
+
+  document.getElementById('resultText').textContent = data.message || 'No message recorded.';
+
+  const dl = document.getElementById('downloadArea');
+  dl.innerHTML = '';
+  if(data.pdf_filename){
+    const a = document.createElement('a');
+    a.href = 'pdfs/' + data.pdf_filename;
+    a.className = 'download-btn';
+    a.textContent = 'Download Cause List PDF';
+    dl.appendChild(a);
+  }
+}
+
+function renderHistory(history){
+  const body = document.getElementById('historyBody');
+  if(!history.length){
+    body.innerHTML = '<tr><td colspan="3">No runs recorded yet.</td></tr>';
+    return;
+  }
+  body.innerHTML = history.map(r => `
+    <tr class="${r.hit ? 'hit' : ''}">
+      <td>${fmtDate(r.date)}</td>
+      <td>${r.hit ? 'Match: ' + (r.matched_terms || []).join(', ') : (r.message || 'No cases')}</td>
+      <td>${r.pdf_filename ? `<a href="pdfs/${r.pdf_filename}">PDF</a>` : '—'}</td>
+    </tr>
+  `).join('');
+}
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "date": null,
+  "run_id": null,
+  "checked_at": null,
+  "site_status": {"reachable": null},
+  "opened_page": false,
+  "date_selected": false,
+  "results_loaded": false,
+  "hit": false,
+  "matched_terms": [],
+  "pdf_filename": null,
+  "message": "No run has completed yet. Trigger the workflow from the Actions tab, or wait for the next scheduled run."
+}
